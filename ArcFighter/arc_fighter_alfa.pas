@@ -44,6 +44,7 @@
 {
 updates
 collision верх и низ немного сгладил
+counter on enemyhit
 
 
 }
@@ -126,6 +127,7 @@ end;
 
 function hitEnemy(): boolean;
 begin
+	hitEnemy:=false;
 	if (((Abs(hero.position.x-xEnemy)<85) and (Abs(hero.position.y-yEnemy)<90))) then		
 	begin
 		if (timeOfHitEnemy>0) then
@@ -135,11 +137,7 @@ begin
 			if (timeOfHitEnemy=0) then
 			begin
 				hitEnemy:=true;
-				timeOfHitEnemy:=300;
-			end
-			else
-			begin
-				hitEnemy:=false;
+				timeOfHitEnemy:=150;
 			end;
 		end;
 	end;
@@ -243,8 +241,8 @@ begin
 							hero.position.x:=hero.position.x-hero.speed;
 						end;
 					end;
-			'e': timeOfHit:=20;
-			'q': timeOfHit:=20;
+			'e': timeOfHit:=40;
+			'q': timeOfHit:=40;
 		end;
 	end;
 end;
@@ -261,38 +259,26 @@ begin
 	hero.speed:=3;
 	xEnemy:=500; yEnemy:=500;
 
-	timeOfHitEnemy:=300;
+	timeOfHitEnemy:=150;
 
 	while true do
 	begin
 
 		drowBackground();
 
-		drawSpriteEnemy(xEnemy,yEnemy); //
+		drawSpriteEnemy(xEnemy,yEnemy); 
 		drawSpriteHero(Hero);
 
-		if   not (hitEnemy()) then
-		begin
-			if NotColisionSprite() then
-			begin
-				Hero.position.x := Hero.position.x+90;
-			end
-			else
+		if (hitEnemy()) then
 			begin
 				Hero.position.x := Hero.position.x-90;
+				writeln(1000000);
 			end;
-
-			setColor(white);
-			setFillstyle(1, white);
-			OutTextXY(100, 100, 'hitdsfasgadfgsfdfghgfj');
-			write(123);
-		end;
 
 		UpdateGraph(UpdateNow);
 		Delay(10); 
 
 		UpdateGraph(UpdateOff);
-		hitEnemy();
 
 
 		if (Keyboard()) then
