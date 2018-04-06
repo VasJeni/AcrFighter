@@ -15,16 +15,16 @@
 *Версия 4. Удар* //done
 По нажатию кнопки игрок наносит удар: меняется его изображение. Если в хитбоксе удара игрока был враг - враг исчезает.
 
-*Версия 5. Анимация удара*
-Удар длиться не один кадр, а несколько. На время удара изображение игрока меняется.
+*Версия 5. Анимация удара* //in time
+Удар длиться не один кадр, а несколько. На время удара изображение игрока меняется. //done
 Как вариант, на время удара игрок не двигается (не реагирует на нажатия клавиш).
 
-*Версия 6. Удар врага*
+*Версия 6. Удар врага* //in time
 Если игрок находится в хитбоксе врага, враг наносит удар. Запускается анимация удара врага, которая длится несколько кадров.
 враг не может наносить удар чаще какого-то времени. Когда игрок "ударен", показывается сообщение.
 Как вариант, после удара игрок отбрасывается на некоторое расстояние.
 
-*Версия 7. Движение врага*
+*Версия 7. Движение врага* //done
 Враг двигается горизонтально в сторону игрока. Если дошёл до конца экрана - исчезает.
 
 *Версия 8. Больше врагов*
@@ -163,10 +163,10 @@ begin
 	setColor(yellow);
 	setFillstyle(1,yellow);
 	bar(round(xEnemy-40),round(yEnemy-90),round(xEnemy+40),round(yEnemy+90));
-	if ((Abs(hero.position.x-xEnemy)<85) and (Abs(hero.position.y-yEnemy)<90) and (hitHero)) then
+	{if ((Abs(hero.position.x-xEnemy)<85) and (Abs(hero.position.y-yEnemy)<90) and (hitHero)) then
 	begin
 	 	xEnemy:=xEnemy+1000;
-	end;
+	end;}
 	if not NotColisionSprite() then
 	begin
 		if (xEnemy-hero.position.x)>0 then
@@ -196,6 +196,15 @@ begin
 	begin
 		xEnemy:=-40;
 	end
+end;
+
+function areEnemyTakeDamege(): boolean;
+begin
+	areEnemyTakeDamege:=false;
+	if ((Abs(hero.position.x-xEnemy)<85) and (Abs(hero.position.y-yEnemy)<90) and (hitHero)) then
+	begin
+		areEnemyTakeDamege:=true;
+	end;		
 end;
 
 function Keyboard():boolean;
@@ -266,7 +275,12 @@ begin
 
 		drowBackground();
 
-		drawSpriteEnemy(xEnemy,yEnemy); 
+		drawSpriteEnemy(xEnemy,yEnemy);
+		if areEnemyTakeDamege() then
+		begin
+			xEnemy:=xEnemy+1000;
+		end; 
+
 		drawSpriteHero(Hero);
 
 		if (hitEnemy()) then
