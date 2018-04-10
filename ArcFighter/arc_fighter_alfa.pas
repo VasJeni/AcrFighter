@@ -47,6 +47,7 @@
 updates
 collision верх и низ немного сгладил
 counter on enemyhit
+little update melee enemy struckture
 
 
 }
@@ -58,8 +59,8 @@ uses
 
 type
 	TPosition = record
-		x : Integer;
-		y : Integer;
+		x : real;
+		y : real;
 	end;
 
 	THeroSprite = record
@@ -72,13 +73,23 @@ type
 		position : TPosition;
 		sprite: THeroSprite;
 		speed:Integer;
+		atack : boolean;
+		atackSide: string;
 	end;
+
+	TEnemy = record
+		position : TPosition;
+	end;
+
+	TAEnemyMelee = array[0..5] of TEnemy; 
 
 var
 	timeOfHit, timeOfHitEnemy: Integer;
-	hitHero: boolean; 
+	HeroAtack: boolean; 
 	Hero : Thero;
-	EnemySpeed,xEnemy, yEnemy: real;
+	EnemySpeed: real;
+	MeleeEnemy:TEnemy;
+	AEnemyMelee:TAEnemyMelee;
 	
 procedure StartGraphics();
 var
@@ -109,33 +120,58 @@ begin
 	drawGarden();
 end;
 
+function HitHero(): boolean;
+begin
+	if (hero.atackSide = 'right') and ((Hero.position.x - AEnemyMelee[0].position.x) < 0) then
+	begin
+	 	HitHero:=true;
+	 	writeln('Function HitHEro in active');
+	end
+	else if (hero.atackSide = 'left') and ((Hero.position.x - AEnemyMelee[0].position.x) > 0 ) then
+	begin 	
+		writeln('Function HitHEro in active  ');
+		HitHero:=true;
+	end 
+	else
+	begin
+		writeln('Function HitHEro are not active  ');
+		HitHero:=false;
+		Hero.atack:=False;
+	end
+end;
+
 procedure drawSpriteHero(var hero:Thero);
 begin
 	if timeOfHit>0 then 
-	begin
+	begin	
+		if (Hero.atackSide = 'left') then 
+		begin
 		setColor(red);
 		setFillstyle(1,red);
-		hitHero:=true;
+		end
+		else
+		begin
+			setColor(lime);
+			setFillstyle(1,lime);
+		end;
 	end
 	else
 	begin
 		setColor(black);
 		setFillstyle(1,black);
-		hitHero:=false;
 	end;
-	bar(hero.position.x-40,hero.position.y-90,hero.position.x+40,hero.position.y+90);
+	bar( round(hero.position.x) - 40 , round(hero.position.y) - 90 , round(hero.position.x) + 40 , round(hero.position.y) + 90);
 	dec(timeOfHit);
 end;
 
 function hitEnemy(): boolean;
 begin
 	hitEnemy:=false;
-	if (((Abs(hero.position.x-xEnemy)<85) and (Abs(hero.position.y-yEnemy)<90))) then		
+	if (((Abs(hero.position.x-AEnemyMelee[0].position.x)<85) and (Abs(hero.position.y-AEnemyMelee[0].position.y)<90))) then		
 	begin
 		if (timeOfHitEnemy>0) then
 		begin
 			dec(timeOfHitEnemy);
-			writeln(timeOfHitEnemy);
 			if (timeOfHitEnemy=0) then
 			begin
 				hitEnemy:=true;
@@ -147,10 +183,10 @@ end;
 
 function NotColisionSprite(): boolean;
 begin
-	if (((hero.position.x+39) >= (xEnemy-40)) and 
-		((hero.position.x-39) <= (xEnemy+40)) and
-		((hero.position.y+44) >= (yEnemy-45)) and
-		((hero.position.y-44) <= (yEnemy+45))) then
+	if (((hero.position.x+39) >= (AEnemyMelee[0].position.x-40)) and 
+		((hero.position.x-39) <= (AEnemyMelee[0].position.x+40)) and
+		((hero.position.y+44) >= (MeleeEnemy.position.y-45)) and
+		((hero.position.y-44) <= (MeleeEnemy.position.y+45))) then
 	begin
 		NotColisionSprite:=true;
 	end
@@ -160,53 +196,50 @@ begin
 	end;
 end;
 
-procedure drawSpriteEnemy(var xEnemy, yEnemy:real);
+procedure drawSpriteEnemy(var arr:TAEnemyMelee);
 begin
 	setColor(yellow);
 	setFillstyle(1,yellow);
-	bar(round(xEnemy-40),round(yEnemy-90),round(xEnemy+40),round(yEnemy+90));
-	{if ((Abs(hero.position.x-xEnemy)<85) and (Abs(hero.position.y-yEnemy)<90) and (hitHero)) then
-	begin
-	 	xEnemy:=xEnemy+1000;
-	end;}
+	bar(round(arr[0].position.x-40),round(arr[0].position.y-90),
+		round(arr[0].position.x+40),round(arr[0].position.y+90));
 	if not NotColisionSprite() then
 	begin
-		if (xEnemy-hero.position.x)>0 then
+		if (arr[0].position.x-hero.position.x)>0 then
 		begin
-			//writeln('left');
-			xEnemy:=xEnemy - EnemySpeed;	
+			arr[0].position.x:=arr[0].position.x - EnemySpeed;	
 		end
 		else
 		begin
-			//writeln('right');
-			xEnemy:=xEnemy + EnemySpeed; 
+			arr[0].position.x:=arr[0].position.x + EnemySpeed; 
 		end;
 
-		if (yEnemy - Hero.position.y)>0 then
+		if (arr[0].position.y - Hero.position.y)>0 then
 		begin
-			//writeln('up');
-			yEnemy:=yEnemy - EnemySpeed;
+			arr[0].position.y:=arr[0].position.y - EnemySpeed;
 		end
 		else
 		begin
-			//writeln('down');
-			yEnemy:=yEnemy + EnemySpeed;
+			arr[0].position.y:=arr[0].position.y + EnemySpeed;
 		end
 
 	end;
-	if xEnemy>900 then
+	if arr[0].position.x>900 then
 	begin
-		xEnemy:=-40;
+		arr[0].position.x:=-200;
 	end
 end;
 
 function areEnemyTakeDamege(): boolean;
 begin
-	areEnemyTakeDamege:=false;
-	if ((Abs(hero.position.x-xEnemy)<85) and (Abs(hero.position.y-yEnemy)<90) and (hitHero)) then
+	if ((Abs(hero.position.x - AEnemyMelee[0].position.x)<85) and 
+		(Abs(hero.position.y - AEnemyMelee[0].position.y)<90) and (HitHero())) then
 	begin
 		areEnemyTakeDamege:=true;
-	end;		
+	end
+	else
+	begin	
+		areEnemyTakeDamege:=false;
+	end;	
 end;
 
 function Keyboard():boolean;
@@ -252,8 +285,17 @@ begin
 							hero.position.x:=hero.position.x-hero.speed;
 						end;
 					end;
-			'e': timeOfHit:=40;
-			'q': timeOfHit:=40;
+			'e': begin
+				timeOfHit:=40;
+				Hero.atackSide:='right';
+				//writeln(Hero.atackSide);
+				end;
+
+			'q': begin
+				timeOfHit:=40;
+				Hero.atackSide:='left';
+				//writeln(Hero.atackSide);
+				end;
 		end;
 	end;
 end;
@@ -265,10 +307,12 @@ begin
 	UpdateGraph(UpdateOff);
 	ClearDevice();
 
-	hero.position.x:=200; hero.position.y:=400;
+	hero.position.x:=200; 
+	hero.position.y:=400;
 	EnemySpeed:=0.3;
 	hero.speed:=3;
-	xEnemy:=500; yEnemy:=500;
+	AEnemyMelee[0].position.x:=500; 
+	AEnemyMelee[0].position.y:=500;
 
 	timeOfHitEnemy:=150;
 
@@ -277,11 +321,11 @@ begin
 
 		drowBackground();
 
-		drawSpriteEnemy(xEnemy,yEnemy);
+		drawSpriteEnemy(AEnemyMelee);
 
 		if areEnemyTakeDamege() then
 		begin
-			xEnemy:=xEnemy+1000;
+			AEnemyMelee[0].position.x:=AEnemyMelee[0].position.x+1000;
 		end; 
 
 		drawSpriteHero(Hero);
@@ -289,7 +333,6 @@ begin
 		if (hitEnemy()) then
 			begin
 				Hero.position.x := Hero.position.x-90;
-				writeln(1000000);
 			end;
 
 		UpdateGraph(UpdateNow);
