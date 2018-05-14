@@ -1,0 +1,356 @@
+program prog_2048_g;
+
+uses
+	wincrt, sysutils, wingraph;
+	//osxbgi, sysutils;
+
+var
+	Field: array[0..3, 0..3] of integer = (
+		(0,2,0,2),
+		(2,0,2,2),
+		(2,2,2,2),
+		(0,0,2,2)
+		);
+
+(*
+	Field: array[0..3, 0..3] of integer = (
+		(0,2,4,8),
+		(16,32,64,128),
+		(256,512,1024,2048),
+		(4096,0,2,2)
+		);
+*)
+
+procedure DrawField();
+var
+	row, col: integer;
+	curValue: integer;
+	indent: integer;
+
+	textcolor, barcolor: longword;
+begin
+	SetTextStyle(DefaultFont, HorizDir, 3);
+	
+	for row := 0 to 3 do
+	begin
+		for col := 0 to 3 do
+		begin
+			curValue := Field[row,col];
+
+			case curValue of
+			0:
+				begin
+					textcolor := darkgray;
+					barcolor := darkgray;
+					indent := 42;
+				end;
+			2:
+				begin
+					textcolor := black;
+					barcolor := lightred;
+					indent := 42;
+				end;
+			4:
+				begin
+					textcolor := black;
+					barcolor := orange;
+					indent := 42;
+				end;
+			8:
+				begin
+					textcolor := black;
+					barcolor := yellow;
+					indent := 42;
+				end;
+			16:
+				begin
+					textcolor := black;
+					barcolor := mustard;
+					indent := 36;
+				end;
+			32:
+				begin
+					textcolor := black;
+					barcolor := YellowGreen;
+					indent := 36;
+				end;
+			64:
+				begin
+					textcolor := black;
+					barcolor := springgreen;
+					indent := 36;
+				end;
+			128:
+				begin
+					textcolor := black;
+					barcolor := lightskyblue;
+					indent := 28;
+				end;
+			256:
+				begin
+					textcolor := black;
+					barcolor := turquoise;
+					indent := 28;
+				end;
+			512:
+				begin
+					textcolor := black;
+					barcolor := carmine;
+					indent := 28;
+				end;
+			1024:
+				begin
+					textcolor := black;
+					barcolor := palemagenta;
+					indent := 20;
+				end;
+			2048:
+				begin
+					textcolor := black;
+					barcolor := peach;
+					indent := 20;
+				end;
+			4096:
+				begin
+					textcolor := black;
+					barcolor := white;
+					indent := 20;
+				end;
+			else
+				begin
+					textcolor := black;
+					barcolor := white;
+				end;
+			end;
+
+			SetColor(textcolor);
+			SetFillStyle(SolidFill, barcolor);
+
+			bar(10+col*90, 10+row*90, 90+col*90, 90+row*90);
+			outtextxy(
+				indent+col*90,
+				44+row*90,
+				inttostr(curValue)
+				);
+		end;		
+	end;
+
+	UpdateGraph(UpdateNow);
+end;
+
+(*
+procedure Compact2( var arr: array of integer );
+var
+	i: Integer;
+	inserti :integer;
+	tmp: integer;
+begin
+	inserti := 0;
+
+	for i := 1 to arraySize - 1 do
+	begin
+		write('checking element #', i);
+		if (arr[i] <> 0) then
+		begin
+			write(' it is ', arr[i]);
+
+			if (arr[inserti] <> 0) then
+			begin
+				if (arr[inserti] = arr[i]) then
+				begin
+					write(' double it', inserti);
+					arr[inserti] := arr[inserti] * 2;
+					arr[i] := 0;
+					inserti := inserti + 1;					
+				end
+				else
+				begin
+					inserti := inserti + 1;
+
+					write(' swap with #', inserti);
+					tmp := arr[i];
+					arr[i] := arr[inserti];
+					arr[inserti] := tmp;
+				end;
+			end
+			else
+			begin
+				write(' swap with #', inserti);
+				tmp := arr[i];
+				arr[i] := arr[inserti];
+				arr[inserti] := tmp;
+			end;
+			
+			writeln(' inserti is now: ', inserti);			
+		end
+		else
+		begin
+			writeln(' it is 0. do nothing');
+		end;
+
+		WriteArray(arr);
+	end;
+end;
+*)
+
+procedure MoveUp();
+var
+	i : Integer;
+begin
+	for i := 0 to 3 do
+	begin
+		Field[0,i] := Field[0,i] + 2; 
+	end;
+end;
+
+procedure MoveDown();
+var
+	i: Integer;
+	inserti :integer;
+	tmp: integer;
+	col: integer;
+begin
+	for col := 0 to 3 do
+	begin
+		inserti := 3;
+
+		for i := 2 downto 0 do
+		begin
+			if (field[i, col] <> 0) then
+			begin
+				if (field[inserti, col] <> 0) then
+				begin
+					if (field[inserti, col] = field[i, col]) then
+					begin
+						field[inserti, col] := field[inserti, col] * 2;
+						field[i, col] := 0;
+						inserti := inserti - 1;					
+					end
+					else
+					begin
+						inserti := inserti - 1;
+
+						tmp := field[i, col];
+						field[i, col] := field[inserti, col];
+						field[inserti, col] := tmp;
+					end;
+				end
+				else
+				begin				
+					tmp := field[i, col];
+					field[i, col] := field[inserti, col];
+					field[inserti, col] := tmp;
+				end;	
+			end
+		end;
+	end;
+
+	//Field[3,0]	:= Field[3,0]*2;
+	//Field[3,1]	:= Field[3,1]*2;
+	//Field[3,2]	:= Field[3,2]*2;
+	//Field[3,3]	:= Field[3,3]*2;
+end;
+
+
+procedure MoveRight();
+begin
+	Field[0,3]	:= Field[0,3]*2;
+	Field[1,3]	:= Field[1,3]*2;
+	Field[2,3]	:= Field[2,3]*2;
+	Field[3,3]	:= Field[3,3]*2;
+end;
+
+procedure MoveLeft();
+var
+	i: Integer;
+	inserti :integer;
+	tmp: integer;
+	row : integer;
+begin
+
+	for row := 0 to 3 do
+	begin
+		inserti := 0;
+		for i := 1 to 3 do
+		begin
+			if (field[row,i] <> 0) then
+			begin
+				if (field[row,inserti] <> 0) then
+				begin
+					if (field[row,inserti] = field[row,i]) then
+					begin
+						field[row,inserti] := field[row,inserti] * 2;
+						field[row,i] := 0;
+						inserti := inserti + 1;					
+					end
+					else
+					begin
+						inserti := inserti + 1;
+
+						tmp := field[row,i];
+						field[row,i] := field[row,inserti];
+						field[row,inserti] := tmp;
+					end;
+				end
+				else
+				begin
+					tmp := field[row,i];
+					field[row,i] := field[row,inserti];
+					field[row,inserti] := tmp;
+				end;
+			end;
+		end;
+	end;
+
+	//Field[0,0]	:= Field[0,0]*2;
+	//Field[1,0]	:= Field[1,0]*2;
+	//Field[2,0]	:= Field[2,0]*2;
+	//Field[3,0]	:= Field[3,0]*2;
+end;
+
+procedure StartGraphics();
+var
+	key: char;
+	gm,gd : smallint;
+begin
+	gd := SVGA;
+	gm := m800x600;
+	InitGraph(gd,gm, '');
+end;
+
+
+//
+// Starting procedure
+//
+var 
+	key : char;
+begin
+	StartGraphics();
+	UpdateGraph(UpdateOff);
+	
+	key:= #0;
+	DrawField;
+
+	while key <> 'q' do
+	begin
+		key:= readkey;
+		case key of
+		'w':
+			MoveUp;
+		'a':
+			MoveLeft;
+		's':
+			MoveDown;
+		'd':
+			MoveRight;
+		'q','Q':
+			break;
+		else
+			continue;
+		end;
+
+		DrawField;
+	end;
+
+	CloseGraph();	
+end.

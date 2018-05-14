@@ -1,0 +1,81 @@
+program progrotateellipse;
+
+uses
+	osxbgi,
+	//wingraph,wincrt,
+	 math;
+
+procedure StartGraphics();
+var
+	gm,gd: smallInt;
+begin
+	gd := Nopalette;	
+	gm := m800x600;
+	InitGraph(gd,gm, '');
+end;
+
+function RotateEllipseX(x,y : Integer; fi: real): Integer;
+
+begin
+
+RotateEllipseX := round (x * cos(fi) - y * sin (fi));
+
+end;
+function RotateEllipseY(x,y : Integer; fi: real): Integer;
+
+begin
+
+RotateEllipseY := round (x * sin(fi) + y * cos (fi));
+
+end;
+
+procedure DrawRotateEllipse(x0,y0,x1,y1 : Integer; u : real);
+var
+    sx0, sy0, rx0, ry0, i: Integer;
+    du : real;
+begin
+    sx0:= x0 + RotateEllipseX(x1,0,u);
+    sy0:= y0 + RotateEllipseY(x1,0,u);
+    MoveTo(sx0, sy0);
+    du:= 0;
+    //updateGraph(UpdateOff);
+    for i:= 1 to 50 do
+    begin
+        du := du + pi/20;
+        rx0 := round(x1 * cos(du));
+        ry0 := round(y1 * sin(du));
+        lineto(x0 + RotateEllipseX(rx0,ry0,u), y0 + RotateEllipseY (rx0, ry0, u));
+        //updateGraph(UpdateNow);
+        Delay(20);
+    end;
+end;
+
+var
+    x,y, i: Integer;
+begin
+
+	x:= 400;
+    y:= 200;
+
+	StartGraphics();
+
+    SetColor(SelectiveYellow);
+    setfillstyle(SolidFill, SelectiveYellow);
+
+    for i:= 0 to 100 do
+    begin
+    DrawRotateEllipse(x, y , 100, 25, pi/4);
+    DrawRotateEllipse(x, y , 100, 25, 3*pi/4);
+    DrawRotateEllipse(x, y , 100, 25, pi);
+    DrawRotateEllipse(x, y , 100, 25, pi/2);
+    end;
+	//DrawEllipse(x, y , 100, 125, pi/4);
+    //DrawEllipse(x, y , 100, 125, 3*pi/4);
+    
+
+
+
+
+	readkey();
+	CloseGraph();
+end.

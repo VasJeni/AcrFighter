@@ -1,0 +1,306 @@
+program Gwent_v_02;
+
+{
+*Версия 1. Игровое поле*
+На экране нарисовано игровое поле: три линии и "рука" игрока.
+В каждом поле нарисовано несколько одинаковых карт.
+По нажатию кнопки - программа закрывается.
+
+*Версия 2. Вывод карт*
+В "руке" лежит несколько одинаковых карт. При нажатии на определённую кнопку (`0`..`9`) карта из руки перемещается во конец *второго* ряда
+
+*Версия 3. Вывод разных карт*
+Теперь есть три карты: одна пехотная, одна стрелковая, одна осадная.
+В "руке" лежит набор из этих карт. При нажатии на определённую кнопку, карта перемещается в конец *своего* ряда
+}
+
+uses
+	osxbgi, sysutils;
+
+type
+	TCoord = record
+		x,y : real;		
+	end;
+
+	TCardType = record
+		Position: TCoord;
+		name: string;
+		spec: string;
+		symbol: char;
+	end;
+
+const
+	// ammounts
+	PlayersAmount = 2;
+	cardsAmmount = 3;
+
+	//positions
+
+	computerPosition = 10;
+	playerPosition = 640;
+
+	// rows
+
+	computerArtRow = 20;
+	computerRow = 130;
+	computerInfantryRow = 240;
+
+	playerArtRow = 550;
+	playerArchRow = 460;
+	playerInfantryRow = 370;
+
+var
+	Field: array[0..2, 0..2] of integer = (
+		(0,0,0),
+		(0,0,0),
+		(0,0,0)
+		);
+
+	PlayerCardsArray: array[0..cardsAmmount] of TCardType;
+	ComputerCardsArray: array[0..cardsAmmount] of TCardType;
+
+
+
+
+procedure StartGraphics();
+var
+	key: char;
+	gm,gd : smallint;
+begin
+	gd := NoPalette;
+	gm := m1280x1024;
+	InitGraph(gd,gm, '');
+end;
+
+
+procedure DrawField();
+var
+	row, col: integer;
+	curValue: integer;
+	indent: integer;
+
+	textcolor, barcolor: longword;
+begin
+	
+	for row := 1 to 6 do
+	begin
+			curValue := Field[row,col];
+
+			case curValue of
+			0:
+				begin
+					textcolor := darkgray;
+					barcolor := darkgray;
+					indent := 42;
+				end;
+			else
+				begin
+					textcolor := darkgray;
+					barcolor := darkgray;
+					indent := 42;
+				end;
+			end;
+
+			SetColor(textcolor);
+			SetFillStyle(SolidFill, barcolor);
+
+			bar(10, 20+row*90, 1260, 90+row*90);
+			outtextxy(
+			indent+col*90,
+			44+row*90,
+			inttostr(curValue)
+			);
+		end;		
+	
+
+	// UpdateGraph(UpdateNow);
+end;
+
+var
+	Isquit: boolean;
+
+procedure Keyboard();
+var
+	button: char; // '3' 'a' 'O' 'o'
+//
+begin
+
+	Isquit := false;
+
+	if (keypressed()) then
+	begin
+		button := readkey();
+
+		//if (button = chr(27)) then
+		if (button = 'q') then
+		begin
+			//Keyboard := true; // в этом случае - выходить
+			Isquit := true;
+		end;
+
+		if (button = 's') then
+		begin
+			//pineapple.Speed.y := - pineapple.Speed.y;
+			PlayerCardsArray[0].Position.y := playerInfantryRow;
+		end;
+
+		if (button = 'a') then
+		begin
+			//carrot.Position.x := carrot.Position.x + 20;
+			PlayerCardsArray[1].Position.y := playerArchRow;
+		end;
+
+		if (button = 'r') then
+		begin
+			//carrot.Position.x := 890;
+			PlayerCardsArray[2].Position.y := playerArtRow;
+		end;
+	end;	
+end;
+
+
+
+procedure DrawOneCard(x,y: Integer; thatCardColor: longword);
+begin
+	SetColor(white);
+	SetFillStyle(SolidFill, thatCardColor);
+	bar(x, y, x+50, y+70);
+end;
+
+procedure DrawSomeCard( var cardParams: TCardType);
+var
+	intx, inty: Integer;
+	intCardColor: longword;
+
+begin
+	intx:= round(cardParams.Position.x);
+	inty:= round(cardParams.Position.y);
+
+	if (cardParams.spec = 'infantry') then
+	begin
+		intCardColor:= white;
+	end;
+	if (cardParams.spec = 'archery') then
+	begin
+		intCardColor:= green;
+	end;
+	if (cardParams.spec = 'artillery') then
+	begin
+		intCardColor:= red;
+	end;
+
+	DrawOneCard(intx+10,inty+10, intCardColor);
+	SetColor(white);
+	OutTextXY(intx+10,inty+10,cardParams.symbol);
+end;
+
+procedure DrawComputerCards();
+var
+	i: Integer;
+begin
+	for i := 0 to cardsAmmount-1 do
+	begin
+		ComputerCardsArray[0].Position.y := computerPosition;
+		ComputerCardsArray[0].Name := 'soldier';
+		ComputerCardsArray[0].spec := 'infantry';
+		ComputerCardsArray[0].symbol := 'c';
+
+
+		ComputerCardsArray[1]:= ComputerCardsArray[0];
+		ComputerCardsArray[1].Name := 'archer';
+		ComputerCardsArray[1].spec := 'archery';
+
+		ComputerCardsArray[2]:= ComputerCardsArray[1];
+		ComputerCardsArray[2].Name := 'catapult';
+		ComputerCardsArray[2].spec := 'artillery';
+	end;
+
+	for i := 0 to cardsAmmount-1 do
+	begin
+		ComputerCardsArray[i].Position.x:= 500 + 100*i;
+	end;
+
+	for i := 0 to cardsAmmount-1 do
+	begin
+		DrawSomeCard(ComputerCardsArray[i]);
+	end;
+end;
+
+procedure DrawPlayerCards();
+var
+	i: Integer;
+begin
+
+	PlayerCardsArray[0].Position.y := playerPosition;
+	PlayerCardsArray[0].Name := 'soldier';
+	PlayerCardsArray[0].spec := 'infantry';
+	PlayerCardsArray[0].symbol := 's';
+
+	PlayerCardsArray[1]:= PlayerCardsArray[0];
+	PlayerCardsArray[1].Name := 'archer';
+	PlayerCardsArray[1].spec := 'archery';
+	PlayerCardsArray[1].symbol := 'a';
+
+	PlayerCardsArray[2]:= PlayerCardsArray[1];
+	PlayerCardsArray[2].Name := 'catapult';
+	PlayerCardsArray[2].spec := 'artillery';
+	PlayerCardsArray[2].symbol := 'r';
+
+	for i := 0 to cardsAmmount-1 do
+	begin
+		PlayerCardsArray[i].Position.x:= 500 + 100*i;
+	end;		
+	
+	// for i := 0 to cardsAmmount-1 do
+	// begin
+	// 	DrawSomeCard(PlayerCardsArray[i]);
+	// end;
+end;
+
+
+// Start Game 
+
+var
+	i: Integer;
+
+begin
+
+	StartGraphics();
+
+	UpdateGraph(UpdateOff);
+	readkey();
+
+	DrawComputerCards();
+	DrawPlayerCards();
+	
+	UpdateGraph(UpdateNow);
+
+	while (true) do
+	begin
+
+		ClearDevice();
+
+		SetColor(white);
+		DrawField();
+
+		for i := 0 to 2 do
+		begin
+			DrawSomeCard(PlayerCardsArray[i]);
+			DrawSomeCard(ComputerCardsArray[i]);
+		end;
+
+		UpdateGraph(UpdateNow);
+
+		Delay(20); // 
+		
+		Keyboard();
+
+		if (Isquit) then
+		begin
+			break;			
+		end;
+	end;
+	
+	readkey();
+	
+end.

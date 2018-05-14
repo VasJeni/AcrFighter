@@ -1,0 +1,245 @@
+program prog_knife_hit;
+
+uses
+	//wingraph,wincrt
+	osxbgi;
+
+
+procedure StartGraphics();
+var
+	gm,gd: smallInt;
+begin
+	gd := Nopalette;	
+	gm := m800x600;
+	InitGraph(gd,gm, '');
+end;
+
+procedure DrawBackGround();
+begin
+	
+	setfillstyle(SolidFill, MidnightBlue);
+	bar(0, 0, 800, 100);
+
+	setfillstyle(SolidFill, DarkSlateBlue);
+	bar(0, 100, 800, 200);
+
+	setfillstyle(SolidFill, SlateBlue);
+	bar(0, 200, 800, 300);
+
+	setfillstyle(SolidFill, MediumSlateBlue);//CeruleanBlue
+	bar(0, 300, 800, 400);
+	
+	setfillstyle(SolidFill, Lilac);//Cerulean
+	bar(0, 400, 800, 500);
+
+	setfillstyle(SolidFill, Thistle);//DodgerBlue
+	bar(0, 500, 800, 600);
+	
+	//tfillstyle(SolidFill, lightgreen);
+	//r(0,300, 800, 600);
+end;
+
+procedure DrawTree(x, y : Integer);
+begin
+	SetColor(Sepia);
+	setfillstyle(SolidFill, Sepia);
+	FillEllipse (x, y, 100,100);
+
+	SetColor(Gold);
+	setfillstyle(SolidFill, Gold);
+	FillEllipse (x, y, 90,90);
+
+	SetColor(SelectiveYellow);
+	setfillstyle(SolidFill, SelectiveYellow);
+	FillEllipse (x, y, 70,70);
+
+	SetColor(Gold);
+	setfillstyle(SolidFill, Gold);
+	FillEllipse (x, y, 50,50);
+
+	SetColor(SelectiveYellow);
+	setfillstyle(SolidFill, SelectiveYellow);
+	FillEllipse (x, y, 30,30);
+
+	SetColor(Gold);
+	setfillstyle(SolidFill, Gold);
+	FillEllipse (x, y, 10,10);
+
+
+	SetColor(SelectiveYellow);
+	setfillstyle(SolidFill, SelectiveYellow);
+	FillEllipse (x+15, y, 7, 2);
+
+
+	SetColor(SelectiveYellow);
+	setfillstyle(SolidFill, SelectiveYellow);
+	FillEllipse (x+50, y-20, 10, 3);
+
+	SetColor(SelectiveYellow);
+	setfillstyle(SolidFill, SelectiveYellow);
+	FillEllipse (x - 25, y + 15, 4, 8);
+
+	SetColor(Gold);
+	setfillstyle(SolidFill, Gold);
+	FillEllipse (x + 19, y - 17, 6,2);
+
+
+	SetColor(SelectiveYellow);
+	setfillstyle(SolidFill, SelectiveYellow);
+	FillEllipse (x - 15, y + 7, 7, 2);
+
+
+	SetColor(SelectiveYellow);
+	setfillstyle(SolidFill, SelectiveYellow);
+	FillEllipse (x+90, y+20, 10, 3);
+
+	SetColor(SelectiveYellow);
+	setfillstyle(SolidFill, SelectiveYellow);
+	FillEllipse (x - 75, y - 15, 4, 8);
+
+
+
+end;
+procedure DrawKnife(x, y : Integer);
+begin
+	SetColor(Sepia);
+	setfillstyle(SolidFill, Sepia);
+	Bar (x,y,x+10,y+40);
+	SetColor(White);
+	setfillstyle(SolidFill, White);
+	
+	Line(x-20,y,x+10,y);
+	LineTo(x+10,y-60);
+	LineTo(x-20,y);
+
+
+end;
+procedure DrawKnife1(x, y : Integer);
+begin
+	
+	SetColor(White);
+	setfillstyle(SolidFill, White);
+
+	Line(x+20,y,x-10,y);
+	LineTo(x+20,y-60);
+	LineTo(x+20,y);
+	
+	
+
+	SetColor(Sepia);
+	setfillstyle(SolidFill, Sepia);
+	
+	LineTo(x+20,y+40);
+	LineTo(x+10,y+40);
+	LineTo(x+10,y);
+
+
+end;
+procedure DrawRotateKnife(x, y : Integer);
+begin
+	
+	SetColor(Red);
+	setfillstyle(SolidFill, Red);
+
+	Line(x+20,y,x-12,y - 10);
+	LineTo(x+30,y-58);
+	LineTo(x+20,y);
+	
+
+	SetColor(Red);
+	setfillstyle(SolidFill, Red);
+	
+	LineTo(x+10,y+40);
+	LineTo(x-2,y+36);
+	LineTo(x+10,y - 4);
+
+
+end;
+begin
+
+	
+	StartGraphics();
+	
+	DrawBackGround();
+	DrawRotateKnife(400,500);
+	DrawKnife(400,340);
+	DrawKnife1(400,500);
+	DrawTree(400,200);
+	
+	readkey();
+	CloseGraph();
+end.
+
+
+
+    for i:= 1 to 1000 do 
+    begin
+        ClearDevice();
+        fi:= 0.05 * i;
+
+        //x1:= round(x0* cos(fi) - y0 * sin(fi)) + round (radius*cos(fi + pi/2));
+        //y1:= round(y0* sin(fi) + x0 * cos(fi)) - round (radius*sin(fi - pi/2));
+        //x0:=round(x1* cos(fi) - y1 * sin(fi));
+        x1:= x0 + round (cos(fi + pi));
+        y1:= y0 - round (sin(fi - pi));
+        x2:= x0 - round (radius*sin(fi  + pi/2));
+        y2:= y0 + round (radius*cos(fi  - pi/2));
+        //x1:= x0 + round (50*cos(fi) - 50*sin(fi));
+        //y1:= y0 + round (50*sin (fi) + 50*cos (fi));
+        //x1:= x0 + round((x1 - x0) * cos(fi) - (y1 - y0) * sin(fi)); 
+       	//y1:= y0 + round((y1 - y0) * cos(fi) - (x1 - x0) * sin(fi)); 
+       	//x1 :=round((x0* cos (fi)) - (y0 * sin (fi)));
+   		//y1 :=round((x0* sin (fi)) - (y0 * cos (fi)));
+       	//fi:= fi + 0.1 * i;
+
+        SetColor(SelectiveYellow);
+        setfillstyle(SolidFill, SelectiveYellow);
+    
+        //SetColor(Red);
+        //fi:= fi + 10;
+        FillEllipse (x0, y0, 80, 80);
+        SetColor(Red);
+        //FillEllipse (x2, y2, 5, 25);
+        //Line (x1, y1, x2, y2 );
+        //LineRel (x2, y2);
+        //LineTo (x1,y1);
+       {	SetColor(White);
+		setfillstyle(SolidFill, White);
+
+		Line(x2+20,y2,x2-10,y2);
+		LineTo(x0,y0);
+		LineTo(x2+20,y2);
+
+		SetColor(Sepia);
+		setfillstyle(SolidFill, Sepia);
+		
+		LineTo(x2+20,y2+40);
+		LineTo(x2+10,y2+40);
+		LineTo(x2+10,y2);}
+
+		
+
+		//NEW
+		SetColor(Red);
+		Line(x0+20,y0,x2,y2);
+		LineTo(x2,y2);
+		LineTo(x0+20,y0);
+		
+
+		SetColor(Red);
+		setfillstyle(SolidFill, Red);
+		
+		LineTo(x2,y0+40);
+		LineTo(x2,y2);
+		LineTo(x0+10,y2);
+
+
+
+       	
+        //Line(x0-20, y0-20, x1, y1);
+        updateGraph(UpdateNow);
+        Delay(20);
+        
+        //fi:= fi + 10;
+    end;
+end;

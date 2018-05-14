@@ -1,0 +1,365 @@
+program progknifeexamp;
+uses
+    //wingraph,wincrt
+    osxbgi;
+
+type
+
+    TCoord = record
+        x,y: real;
+        u: Integer;     
+    end;
+
+    TKnifeType = record
+        Position: TCoord;
+        Speed: TCoord;
+    end;
+
+var
+    Knife: array[0..6] of TKnifeType; // в дальнейшем - массив для ножей, которые будут иметь разные изначальные координаты по у0, х0(?), разный изначальный угол относительно бревна
+                        //Куда применить массив ножей(?)
+    KnifeNumber : TKnifeType;
+
+
+procedure StartGraphics();
+var
+    gm,gd: smallInt;
+begin
+    gd := Nopalette;    
+    gm := m800x600;
+    InitGraph(gd,gm, 'Knife_HIT');
+end;
+//Рисование фона
+procedure DrawBackGround();
+begin
+    
+    setfillstyle(SolidFill, MidnightBlue);
+    bar(0, 0, 800, 100);
+
+    setfillstyle(SolidFill, DarkSlateBlue);
+    bar(0, 100, 800, 200);
+
+    setfillstyle(SolidFill, SlateBlue);
+    bar(0, 200, 800, 300);
+
+    setfillstyle(SolidFill, MediumSlateBlue);//CeruleanBlue
+    bar(0, 300, 800, 400);
+    
+    setfillstyle(SolidFill, Lilac);//Cerulean
+    bar(0, 400, 800, 500);
+
+    setfillstyle(SolidFill, Thistle);//DodgerBlue
+    bar(0, 500, 800, 600);
+    
+    //tfillstyle(SolidFill, lightgreen);
+    //r(0,300, 800, 600);
+end;
+//Рисование бревна, где воткнуты ножи
+procedure DrawTree(x, y : Integer);
+begin
+    SetColor(Sepia);
+    setfillstyle(SolidFill, Sepia);
+    FillEllipse (x, y, 100,100);
+
+    SetColor(Gold);
+    setfillstyle(SolidFill, Gold);
+    FillEllipse (x, y, 90,90);
+
+    SetColor(SelectiveYellow);
+    setfillstyle(SolidFill, SelectiveYellow);
+    FillEllipse (x, y, 70,70);
+
+    SetColor(Gold);
+    setfillstyle(SolidFill, Gold);
+    FillEllipse (x, y, 50,50);
+
+    SetColor(SelectiveYellow);
+    setfillstyle(SolidFill, SelectiveYellow);
+    FillEllipse (x, y, 30,30);
+
+    SetColor(Gold);
+    setfillstyle(SolidFill, Gold);
+    FillEllipse (x, y, 10,10);
+
+end;
+
+procedure DrawOneKnife(y : integer; u:Integer);
+var
+    //Массив точек для рисования ножа, состоящего из трех элементов:лезвия,ручки,опоры ручки
+    polygon3: array [0..4] of PointType;
+    polygon4: array [0..3] of PointType;
+    polygon5: array [0..3] of PointType;
+    //Переменные для угла поворота, скорости движения, изначальных координат по х0, у0
+    fi: real;
+    radius,x :Integer;
+
+begin
+
+    radius:= 100; //удаленность каждой точки массива от начальной точки рисования
+    //pi:= pi/180;
+    //u:= 270; //изначальный угол, под которым рисуется нож
+
+    //u:= 17;
+
+    x:= 400;
+    fi:= 0.05;
+
+    //Массив точек для рисования лезвия 
+    polygon3[0].x := x + round ((radius  - 20)*cos(fi + (u*pi/180)));
+    polygon3[0].y := y - round ((radius  - 20)*sin(fi + u*pi/180));
+
+    polygon3[1].x := x + round ((radius  - 5)*cos(fi + ((u+5)*pi/180)));
+    polygon3[1].y := y - round ((radius  - 5)*sin(fi + ((u+5)*pi/180)));
+
+    polygon3[2].x := x + round ((radius  + 35)*cos(fi + ((u+3)*pi/180)));
+    polygon3[2].y := y - round ((radius  + 35)*sin(fi + ((u+3)*pi/180)));
+
+    polygon3[3].x := x + round ((radius  + 35)*cos(fi + ((u-5)*pi/180)));
+    polygon3[3].y := y - round ((radius  + 35)*sin(fi + ((u-5)*pi/180)));
+
+    polygon3[4].x := x + round ((radius  - 5)*cos(fi + ((u-5)*pi/180)));
+    polygon3[4].y := y - round ((radius  - 5)*sin(fi + ((u-5)*pi/180)));
+
+    SetFillStyle(solidFill, LightSkyBlue);
+    SetColor(white);
+    FillPoly(5, polygon3);
+
+    //Массив точек для рисования опоры ручки
+    polygon4[0].x := x + round ((radius  + 35)*cos(fi + ((u+5.5)*pi/180)));
+    polygon4[0].y := y - round ((radius  + 35)*sin(fi + ((u+5.5)*pi/180)));
+
+    polygon4[1].x := x + round ((radius  + 45)*cos(fi + ((u+5.5)*pi/180)));
+    polygon4[1].y := y - round ((radius  + 45)*sin(fi + ((u+5.5)*pi/180)));
+
+    polygon4[2].x := x + round ((radius  + 45)*cos(fi + ((u-6.5)*pi/180)));
+    polygon4[2].y := y - round ((radius  + 45)*sin(fi + ((u-6.5)*pi/180)));
+
+    polygon4[3].x := x + round ((radius  + 35)*cos(fi + ((u-6.5)*pi/180)));
+    polygon4[3].y := y - round ((radius  + 35)*sin(fi + ((u-6.5)*pi/180)));
+
+    SetFillStyle(solidFill, Burgundy);
+    SetColor(Burgundy);
+    FillPoly(4, polygon4);
+
+    //Массив точек для рисования ручки ножа
+    polygon5[0].x := x + round ((radius  + 45)*cos(fi + ((u+2)*pi/180)));
+    polygon5[0].y := y - round ((radius  + 45)*sin(fi + ((u+2)*pi/180)));
+
+    polygon5[1].x := x + round ((radius  + 65)*cos(fi + ((u+2)*pi/180)));
+    polygon5[1].y := y - round ((radius  + 65)*sin(fi + ((u+2)*pi/180)));
+
+    polygon5[2].x := x + round ((radius  + 65)*cos(fi + ((u-3.5)*pi/180)));
+    polygon5[2].y := y - round ((radius  + 65)*sin(fi + ((u-3.5)*pi/180)));
+
+
+    polygon5[3].x := x + round ((radius  + 45)*cos(fi + ((u-3.5)*pi/180)));
+    polygon5[3].y := y - round ((radius  + 45)*sin(fi + ((u-3.5)*pi/180)));
+
+    SetFillStyle(solidFill, Cinnamon);
+    SetColor(Cinnamon);
+    FillPoly(4, polygon5); 
+
+    u:= u+1;
+
+end;
+
+//Рисование и движение крутящегося вокруг бревна ножа,вызов процедуры рисования фона, бревна и неподвижного ножа
+{procedure RotateKnives(var knife : TKnifeType);
+var
+    
+    i:Integer;
+    inty, intu : Integer;
+
+begin
+
+    inty := round(knife.Position.y);
+    intu := round(knife.Position.u);
+
+
+
+    //risovat' vse nozhi
+
+     
+        //readkey();        
+
+        DrawOneKnife(inty, round(intu + 0));
+
+
+        //DrawOneKnife(430, 270);
+
+        intu := intu  + 1 ;
+  
+end;}
+
+//Функция(процедура?) для коллизии ножа и бревна (что происходит когда нож столкнулся с ножем, что происходит когда нож столкнулся с деревом)
+//Функция(процедура?) для коллизии яблока и ножа (что происходит когда нож столкнулся с ножем, что происходит когда нож столкнулся с деревом, что происходит когда нож столкнулся с яблоком)
+//Процедуры для разных раундов???
+
+var
+    Isquit: boolean;
+    
+//Процедура реакции на нажатие клавиш (q-выход, w-движение нижнего ножа вверх, чтоб воткнуться в бревно )
+procedure Keyboard();//Не работает(?)
+var
+    button: char; 
+    i: integer;
+begin
+
+    Isquit := false;
+    
+
+    if (keypressed()) then
+    begin
+        button := readkey();
+
+        if (button = 'q') then
+        begin
+    
+            Isquit := true;
+            //exit;
+        end;
+
+        if (button = 'w') then
+        begin 
+
+            for i:= 0 to 6 do
+            begin   
+
+            {knife[0].Position.y := 400;
+            knife[1].Position.y := 400;
+            knife[2].Position.y := 400;
+            knife[3].Position.y := 400;
+            knife[4].Position.y := 400;
+            knife[5].Position.y := 400;
+            knife[6].Position.y := 400;} 
+                
+            knife[0].Position.y := 200;
+            knife[1].Position.y := 200;
+            knife[2].Position.y := 200;
+            knife[3].Position.y := 200;
+            knife[4].Position.y := 200;
+            knife[5].Position.y := 200;
+            knife[6].Position.y := 200;
+
+            knife[0].Position.u := 270;
+            knife[1].Position.u := 270;
+            knife[2].Position.u := 270;
+            knife[3].Position.u := 270;
+            knife[4].Position.u := 270;
+            knife[5].Position.u := 270;
+            knife[6].Position.u := 270;
+
+            knife[i].Position.u := knife[i].Position.u + 1;
+
+            end;
+
+        end;
+    end;    
+end;
+
+var
+    i: Integer;
+
+begin   
+    
+    StartGraphics();
+    
+    knife[0].Position.u := 270;
+    knife[1].Position.u := 270;
+    knife[2].Position.u := 270;
+    knife[3].Position.u := 270;
+    knife[4].Position.u := 270;
+    knife[5].Position.u := 270;
+    knife[6].Position.u := 270;
+
+
+    knife[0].Position.y := 800;
+    knife[1].Position.y := 800;
+    knife[2].Position.y := 800;
+    knife[3].Position.y := 800;
+    knife[4].Position.y := 800;
+    knife[5].Position.y := 800;
+    knife[6].Position.y := 800;
+
+   
+
+    //Вызов процедуры вывода на экран анимации ножей(задавать разное количество ножей, под разными изначальными углами)
+    
+    UpdateGraph(UpdateOff);
+
+    while true do
+    begin
+
+      ClearDevice();
+
+        for i := 0 to 6 do
+        begin
+     
+        //readkey();     
+
+
+        DrawOneKnife(round(knife[i].position.y),
+                     (knife[i].position.u + 0)
+                     );
+
+
+        //knife[0].position.u := knife[1].position.u + 1;
+        //knife[1].position.u := knife[1].position.u + 1;
+        //knife[2].position.u := knife[2].position.u + 1;
+        //knife[3].position.u := knife[3].position.u + 1;
+        //knife[4].position.u := knife[4].position.u + 1;
+        //knife[5].position.u := knife[3].position.u + 1;
+        //knife[6].position.u := knife[4].position.u + 1;
+
+        if (knife[i].Position.y = 200) then
+        begin
+            knife[i].position.u := knife[i].position.u + 1;
+        end
+        else 
+        begin
+
+
+            //knife[i].Position.u := 0;
+            knife[i].Position.y := 430;
+
+
+        end;    
+          
+    
+
+        DrawTree(400,200);
+
+       
+        end;
+
+        updateGraph(UpdateNow);
+        Delay(20); 
+
+        //UpdateGraph(UpdateOff);
+
+        //UpdateGraph(updateNow);
+
+        //DrawBackGround();
+
+        //UpdateGraph(updateNow);
+
+        UpdateGraph(UpdateOff);
+
+        Keyboard();
+    
+        if (Isquit) then
+        begin
+            break;          
+        end;
+
+    end;
+
+
+    ClearDevice();
+    SetColor(Red);
+    OutTextXY(400,300, 'GAME OVER');
+    UpdateGraph(UpdateNow);
+    readkey();
+
+    CloseGraph();
+end.

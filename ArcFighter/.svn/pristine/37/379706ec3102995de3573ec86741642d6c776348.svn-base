@@ -1,0 +1,427 @@
+
+uses
+	osxbgi, 
+	sysutils;
+
+const
+	//в процессе работы программы их менять нельзя
+	SpaceObjects = 2; 
+
+type
+	//перечесляемый тип (enumeration)
+	TSpaceCodeType = (codeSpaseMan, codeUFO, codeMagicStar);
+
+	TCoord = record
+		x,y : real;	
+	end;
+
+	TSpace = record
+		Position: TCoord;
+		Speed: TCoord;
+		code: TSpaceCodeType;
+		symbol: char;	
+	end;
+
+	var
+		Space: array[0..2] of TSpace;
+		HIT: Integer;
+		backImage: pointer;
+		ufoImage : pointer;
+		spacemanImage : pointer;
+		starImage : pointer;
+
+procedure StartGraphics();
+var
+	gm,gd: smallInt;
+
+	res: Boolean;
+
+begin
+	//полноцветный режим (это параметр)
+	gd := Nopalette; 
+	//разрешение, размер окна (это параметр)	
+	gm := m800x600;	
+	//создать окно (это функция/процедура)
+	InitGraph(gd,gm, ''); 
+
+	//загрузка изображения
+	res := LoadImage(backImage,'back2.bmp');
+	if res = false then
+	begin
+		halt;
+	end;
+
+	res := LoadImage(ufoImage,'ufo.bmp');
+	if res = false then
+	begin
+		halt;
+	end;
+
+	res := LoadImage(spacemanImage,'spaceman.bmp');
+	if res = false then
+	begin
+		halt;
+	end;
+
+	res := LoadImage(starImage,'star.bmp');
+	if res = false then
+	begin
+		halt;
+	end;
+
+	//графические обновления
+	UpdateGraph(updateOff);
+	//очистить экран
+	cleardEvice();
+
+	UpdateGraph(updateNow);
+	
+end;
+
+//прописываем условия рисования каждого объекта
+procedure DrawSpaceMan(x,y: Integer);
+begin
+	setfillstyle(SolidFill, orange);
+	SetColor(orange);
+	PutImageTransparent(x-45,y-75, spacemanImage);
+	//FillEllipse(x,y, 20,30);	
+end;
+
+procedure DrawUFO(x,y: Integer);
+begin
+	setfillstyle(SolidFill, green);
+	SetColor(green);
+
+	PutImageTransparent(x-75,y-50, ufoImage);
+	//FillEllipse(x,y, 40,40);
+	
+end;
+
+procedure DrawMagicStar(x,y: Integer);
+begin
+	setfillstyle(SolidFill, yellow);
+	SetColor(yellow);
+	PutImageTransparent(x-5,y-5, starImage);
+	//FillEllipse(x,y, 10,10);	
+end;
+
+//прописываем условия рисования объектов
+procedure DrawSpaceObjects(var parametr1: TSpace);
+var
+	intx, inty, i: Integer;
+begin
+
+	for i := 0 to SpaceObjects do
+	begin
+		intx := round(parametr1.Position.x);
+		inty := round(parametr1.Position.y);
+
+	if (parametr1.code = codeSpaseMan) then
+	begin
+		DrawSpaceMan(intx, inty);
+	end;
+
+	if (parametr1.code = codeUFO) then
+	begin
+		DrawUFO(intx, inty);
+	end;
+
+	if (parametr1.code = codeMagicStar) then
+	begin
+		DrawMagicStar(intx, inty);
+	end;
+
+	// SetColor(white);
+	// OutTextXY(intx + 20, inty + 30, parametr1.symbol);
+	end;
+end;
+
+//условия рисования всех объектов
+procedure DrawAllObjects(SpaceObjects: Integer);
+var
+	i: Integer;
+begin
+	for i := 0 to SpaceObjects do
+	begin
+		DrawSpaceObjects(Space[i]);
+	end;
+
+end;
+
+//условия движения всех объектов
+procedure DrawMotion(SpaceObjects: Integer);
+
+begin
+	//движение летающей тарелки
+	Space[1].Position.x := Space[1].Position.x + Space[1].Speed.x;
+	Space[1].Position.y := Space[1].Position.y + Space[1].Speed.y;
+
+	//движение MagicBol - брасок
+	Space[2].Position.y := Space[2].Position.y + Space[2].Speed.y;
+	if (Space[2].Position.y < 10) then
+	begin
+		Space[2].Position.y := 550;
+		Space[2].Speed.y := 0;
+		Space[2].Position.x := random (700);
+	end;
+end;
+
+var
+	Isquit: Boolean;
+
+procedure Keyboard();
+var
+	button: char;
+
+//Значение по умолчанию - продолжать работать (не выходить)
+//Keyboard := false;
+begin
+	Isquit := false;
+
+	if (IsKeypressed(VK_ESCApE)) then
+	begin
+		Isquit := true;
+		exit;
+	end;
+	//вправо / влево
+	if (IsKeypressed(VK_a)) then
+	begin
+		Space[0].Position.x := Space[0].Position.x - Space[0].Speed.x;
+		if Space[0].Position.x < 10 then
+		begin
+			Space[0].Position.x := 10;
+		end;
+	end;
+
+	if (IsKeypressed(VK_d)) then
+	begin
+		Space[0].Position.x := Space[0].Position.x + Space[0].Speed.x;
+		if Space[0].Position.x > 780 then
+		begin
+			Space[0].Position.x := 780;
+		end;
+	end;
+
+	if (keypressed()) then
+	begin
+		button := readkey();
+
+		//завершение программы
+		if (button = 'q') then
+		begin
+			//Keyboard := true; // в этом случае - выходить
+			Isquit := true;
+			ClearDevice();
+			SetColor(orange);
+			OutTextXY(330,300, 'Dont Panic Spaceman');
+			UpdateGraph(UpdateNow);
+			exit;
+		end;
+
+		writeln('pressed key:', button);
+
+		if (upcase(button) = upcase(Space[1].symbol)) then
+		begin
+			Space[1].Position.x := Space[1].Position.x + random (800);
+			Space[1].Position.y := 0;
+		end;
+	end;
+end;
+
+var
+	Distance: Real;
+	TIMER: Integer;
+	frame: Integer;
+
+begin
+	HIT:= 0;
+	StartGraphics();
+	TIMER:= 60;
+	frame:= 0;
+
+	Space[0].Position.x := 400;
+	Space[0].Position.y := 550;
+	Space[0].Speed.x := 10;
+	Space[0].code := codeSpaseMan;
+	Space[0].symbol := 'r';
+	
+	Space[1].Position.x := 50;
+	Space[1].Position.y := 100;
+	Space[1].Speed.x := 3;
+	Space[1].code := codeUFO;
+	Space[1].symbol := 'u';
+
+	Space[2].Position.x := 450;
+	Space[2].Position.y := 550;
+	Space[2].Speed.y := 0;
+	Space[2].code := codeMagicStar;
+	Space[2].symbol := 'c';
+
+	SetColor(orange);
+	OutTextXY(200,200, 'Dont Panic Spaceman');
+
+	SetColor(green);
+	OutTextXY(450, 400, 'START GAME PRESS ANY KEY');
+	OutTextXY(450, 430, 'D   SPACEMAN GOES RIGHT');
+	OutTextXY(450, 460, 'A   SPACEMAN GOES LEFT');
+	OutTextXY(450, 490, 'W   MAGIC STAR FLIGHT');
+
+	UpdateGraph(UpdateNow);
+
+	UpdateGraph(UpdateOff);
+
+	//ждёт нажатия любой клавиши и возвращает значение 
+	readkey();
+
+
+	UpdateGraph(UpdateNow);
+
+
+	while (true) do
+	begin
+		
+		ClearDevice();
+
+		PutImage(0,0,backImage);
+
+		SetColor(orange);
+		OutTextXY(30,30, 'TIMER  ' + inttostr(TIMER));
+		DrawAllObjects(SpaceObjects);
+		DrawMotion(SpaceObjects);
+
+		SetColor(orange);
+		OutTextXY(30,50, 'HIT  ' + inttostr(HIT));
+		DrawAllObjects(SpaceObjects);
+		DrawMotion(SpaceObjects);
+
+		UpdateGraph(UpdateNow);
+
+		//здесь счётчик 
+		frame:= frame + 1;
+		if frame = 50 then
+		begin
+			TIMER := TIMER - 1;
+			frame := 0;
+		end;
+		if TIMER = 0 then
+		begin
+			break;
+		end;
+
+	Delay(20); 
+		
+	Keyboard();
+
+	if (Space[1].Position.x > 760) then
+	begin
+		Space[1].Position.x := 10;
+	end;
+
+	//здесь описано столкновение Spaceman и MagicBol (который потом перемещается вместе с ним)
+		Distance := sqrt(
+		sqr (Space[0].Position.x - Space[2].Position.x) + 
+		sqr (Space[0].Position.y - Space[2].Position.y)
+		);
+
+		if Distance <= (20 + 20) then
+		begin
+			Space[2].Position.x := Space[0].Position.x;	
+		end;
+
+		if (Isquit) then
+		begin
+			break;
+		end;
+
+		//здесь условие столкновения летающего объекта и звезды 
+		Distance := sqrt(
+		sqr (Space[1].Position.x - Space[2].Position.x) + 
+		sqr (Space[1].Position.y - Space[2].Position.y)
+		);
+		if Distance <= (40 + 10) then
+		begin
+			Space[1].Position.x := 900;
+			Space[2].Position.x := 900;	
+			HIT := HIT + 1;
+		end;
+
+		//здесь описано случайное появление MagicBol на случайной Х координате
+		if (Space[2].Position.y < 0) then
+		begin
+			Space[2].Position.y := 550;
+		end;
+
+		// //здесь описан брасок MagicBol	
+		if (IsKeypressed(VK_w)) then
+            if (Space[2].Position.x = Space[0].Position.x) then
+        begin
+            Space[2].Speed.y := Space[2].Speed.y - 2;
+        end;
+end;
+//здесь три улсовия три 
+
+	if TIMER = 0 then
+	begin
+		if HIT <= 10 then
+		begin
+			ClearDevice();
+			SetColor(orange);
+			OutTextXY(330,300, 'FLY AWAY SPACEMAN');
+			UpdateGraph(UpdateNow);
+		end;
+	end;
+
+	if TIMER = 0 then
+	begin
+		if (HIT > 10) and (HIT <= 20) then
+		begin
+			ClearDevice();
+			SetColor(orange);
+			OutTextXY(330,300, 'COME ON SPACEMAN');
+			UpdateGraph(UpdateNow);
+		end;
+	end;
+
+	if TIMER = 0 then
+	begin
+		if (HIT > 20) then
+		begin
+			ClearDevice();
+			SetColor(orange);
+			OutTextXY(330,300, 'YOU ARE SUPER HERO SPACEMAN');
+			UpdateGraph(UpdateNow);
+		end;
+	end;
+
+	readkey();
+
+	//закрывает окна
+	CloseGraph();
+end.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

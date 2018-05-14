@@ -1,0 +1,32 @@
+program prog4_2_2;
+
+var
+    A: Integer; //age
+
+begin
+	writeln('Enter your age:');
+	readln(A);
+
+	if (A>=18) then
+	begin
+		writeln('Ukraine - Yes');
+	end
+	else
+	begin
+		writeln('Ukraine - No')
+	end;
+
+	if (A>=21) then
+	begin
+		writeln('USA - Yes');
+	end
+	else
+	begin
+		writeln('USA - No')
+	end;
+
+	if (A>=0) then
+	begin
+		writeln('Kuwait - No');
+	end;
+end.

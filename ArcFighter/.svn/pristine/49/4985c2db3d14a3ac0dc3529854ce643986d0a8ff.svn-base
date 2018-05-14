@@ -1,0 +1,36 @@
+TheroImage = record
+		heroStay : pointer;
+		heroAtackRight1  : pointer;
+		heroAtackRight2 : pointer;
+		heroAtackRight3 : pointer;
+		heroAtackRight4 : pointer;
+		heroAtackleft1 : pointer;
+		heroAtackleft2 : pointer;
+		heroAtackleft3 : pointer;
+		heroAtackleft4 : pointer;
+		heroMoveLefr : pointer;
+		heroMoveRight : pointer;; //add image here
+	end;
+
+TEnemyImage = record
+		enemyAtackRight1  : pointer;
+		enemyAtackRight2 : pointer;
+		enemyAtackRight3 : pointer;
+		enemyAtackRight4 : pointer;
+		enemyAtackleft1 : pointer;
+		enemyAtackleft2 : pointer;
+		enemyAtackleft3 : pointer;
+		enemyAtackleft4 : pointer;
+		enemyMoveLefr : pointer;
+		enemyMoveRight : pointer;
+	end;
+
+	TEnemy = record
+		position : TPosition;
+		colision : boolean;
+		hitOnHero : boolean;
+		atackIsMine : boolean;
+		enemyTakeDemage : boolean;
+		//image : pointer;
+		image : TEnemyImage;
+	end;
